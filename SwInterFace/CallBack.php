@@ -1,5 +1,5 @@
 <?php
-namespace Tiny;
+namespace SwInterFace;
 
 /**
  * 接收swoole扩展的回调
@@ -59,14 +59,14 @@ class CallBack
      */
     static $clientEnv;
     static $stop = false;
-
-
-    function __construct($host, $port, $timeout = 30)
-    {
-        $this->host = $host;
-        $this->port = $port;
-        $this->timeout = $timeout;
-    }
+//
+//
+//    function __construct($host, $port, $timeout = 30)
+//    {
+//        $this->host = $host;
+//        $this->port = $port;
+//        $this->timeout = $timeout;
+//    }
 
 
     function onMasterStart()
@@ -206,7 +206,6 @@ class CallBack
         if (!is_callable($request['call'])) {
             return array('errno' => self::ERR_NOFUNC);
         }
-        print_r($request);
         $ret = call_user_func_array($request['call'], $request['params']);
         if ($ret === false) {
             return array('errno' => self::ERR_CALL);

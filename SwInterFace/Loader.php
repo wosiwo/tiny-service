@@ -1,5 +1,5 @@
 <?php
-namespace Tiny;
+namespace SwInterFace;
 
 /**
  * Swoole库加载器

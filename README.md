@@ -1,2 +1,12 @@
-# tiny-service
-基于对swooleframework的理解，自己尝试重新实现了一边
+
+
+由于swoole的文档缺乏相关的介绍，这里对如何清晰明了的使用swoole跑起一个service的代码结构进行了整理，
+参照了swooleframework,将与swoole扩展交互的功能从框架中独立出来，放入SwInterFace目录下
+Tiny目录则可以替换为任意一个php框架
+搞清楚这个代码结构后，就可以比较轻松的将现有的php框架用swoole扩展里run起来
+
+首先我们需要一个通用的interface层来调用swoole扩展，并配置相关参数
+然后需要一个callback层来绑定swoole的事件回调
+一个api层来处理接受到的请求
+而在api层中，我们就可以应用自定义的框架来执行真正的业务逻辑代码了
+我们可以在一个合适的地方初始化框架，并获得框架的超级变量，就可以使用框架的各种类库了
