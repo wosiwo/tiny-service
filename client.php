@@ -63,6 +63,19 @@ class Service extends Swoole\Client\SOA
                 ]
             ]
         );
+        $conf['one'] = array(
+                "namespace" => "Search",
+                "id" => "tiny",
+                "servers"=> [
+                    [
+                        "host"=> "127.0.0.1",
+                        "port"=> 4989,
+//                        "port"=> 2989,
+                        "weight"=> 100,
+                        "status"=> "online"
+                    ]
+                ]
+            );
 
         $this->addServers($conf[$service]['servers']);
 

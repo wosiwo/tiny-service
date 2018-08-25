@@ -8,7 +8,7 @@ require './client.php';
 
 //$ret = Tiny\Search::search();
 
-$service = Service::getInstance('tiny');
+$service = Service::getInstance('one');
 //$serviceUser = Service::getInstance('user');
 
 $ret = $service->call('Test::search')->getResult();
