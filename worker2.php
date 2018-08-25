@@ -1,5 +1,5 @@
 <?php
-
+set_time_limit(0);
 
 require './Tiny/Loader.php';
 
@@ -9,90 +9,58 @@ Tiny\Loader::addNameSpace('Community', '/data/www/public/community/common-librar
 
 spl_autoload_register('\\Tiny\\Loader::autoload');
 
+//ini_set();
+//sleep(12);   //暂停几秒，使用 strace 捕捉进程
+//使用 tinys扩展
+//调用扩展类，发送数据
 
-$env = get_cfg_var('env.name');
 
-Tiny\FrameWork::getInstance();
+class callBack{
 
 
-if (empty($env))
-{
-    $env = 'product';
+     function  onReceive( $fd, $data){
+        echo "php onReceive fd $fd data $data  \n";
+         //解析包
+         //解析包头
+
+         var_dump(strlen($data));
+         $header = unpack(\Tiny\CallBack::HEADER_STRUCT, substr($data, 0, \Tiny\CallBack::HEADER_SIZE));
+         print_r($header);
+
+         $buffer[$fd] = substr($data, \Tiny\CallBack::HEADER_SIZE);
+
+         //数据解包
+         $request = \Tiny\CallBack::decode($buffer[$fd], $header['type']);
+         print_r($request);
+
+        //调用扩展类，发送数据
+         $ret = [
+             'code' => 0,
+             'data' => 'send back',
+         ];
+         $response = array('errno' => 0, 'data' => $ret);
+         echo "test 1 \n";
+         var_dump(\Tiny\CallBack::encode($response,$header['type'],$header['uid'],$header['serid']));
+//        $this->tinys->send($fd,"testaaaaaaaaaaaaaaaaa");
+        $this->tinys->send($fd,\Tiny\CallBack::encode($response,$header['type'],$header['uid'],$header['serid']));
+         echo "test 2 \n";
+    }
 }
-$env = "local";
-define('ENV_NAME', $env);
+
+$callback = new callBack();
 
 
-Tiny\Server::setPidFile(__DIR__ . '/logs/server.pid');
+$tinys = new tinys();
 
-echo "test \n";
+//
+$callback->tinys = $tinys;
 
-Tiny\Server::start(function ()
-{
+//$tinys->send(1,'send back\n');
 
-    $setting = array(
-        //TODO： 实际使用中必须调大进程数
-        'worker_num' => 4,
-        'max_request' => 1000,
-        'dispatch_mode' => 3,
-        'daemonize' => false,
-        'log_file' => __DIR__ . '/logs/swoole.log',
-        'open_length_check' => 1,
-        'package_max_length' => Tiny\Server::$packet_maxlen,
-        'package_length_type' => 'N',
-        'package_body_offset' => Tiny\Server::HEADER_SIZE,
-        'package_length_offset' => 0,
-        'watch_path' => __DIR__ . '/Tiny',
-        'heartbeat_check_interval' => 60,
-        'heartbeat_idle_time' => 600,
-    );
+$tinys->on('Receive',[$callback,'onReceive']);
+
+$tinys->run("127.0.0.1",4989);
 
 
 
-    if (ENV_NAME == 'product')
-    {
-        $setting['worker_num'] = 4;
-        //重定向PHP错误日志
-        ini_set('error_log', __DIR__ . '/logs/php_errors.log');
-    }
-    else
-    {
-        //重定向PHP错误日志到logs目录
-        ini_set('error_log', __DIR__ . '/logs/php_errors.log');
-    }
-
-    //设置为512M
-    ini_set('memory_limit', '512M');
-
-    $listenHost = '0.0.0.0';
-    if (ENV_NAME == 'product')
-    {
-        $iplist = swoole_get_local_ip();
-        //监听局域网IP
-        foreach ($iplist as $k => $v)
-        {
-            if (substr($v, 0, 7) == '192.168')
-            {
-                $listenHost = $v;
-            }
-        }
-    } elseif (ENV_NAME == 'test')
-    {
-        $iplist = swoole_get_local_ip();
-        //监听局域网IP
-        foreach ($iplist as $k => $v)
-        {
-            if (substr($v, 0, 6) == '172.16')
-            {
-                $listenHost = $v;
-            }
-        }
-    }
-    echo "test1 \n";
-
-    $env_port = getenv('PORT');
-    $server = Tiny\Server::autoCreate($listenHost, $env_port ? intval($env_port) : 9001);
-//    $server->setProtocol($AppSvr);
-    $server->setProcessName("TinyServer");
-    $server->run($setting);
-});
+echo "start \n";
