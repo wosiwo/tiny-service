@@ -7,6 +7,7 @@ spl_autoload_register('\\SwInterFace\\Loader::autoload');
 
 SwInterFace\Loader::addNameSpace('Tiny', __DIR__ . '/Tiny');
 SwInterFace\Loader::addNameSpace('SwInterFace', __DIR__ . '/SwInterFace');
+SwInterFace\Loader::addNameSpace('Search', __DIR__ . '/Search');
 
 
 SwInterFace\Server::setPidFile(__DIR__ . '/logs/server.pid');

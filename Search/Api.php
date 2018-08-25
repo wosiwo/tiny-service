@@ -1,5 +1,5 @@
 <?php
-namespace SwInterFace;
+namespace Search;
 
 
 class Api{
